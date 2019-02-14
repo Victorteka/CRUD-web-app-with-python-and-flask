@@ -3,20 +3,18 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from app import db, loginmanager
 
 
-class Employee(UserMixin, db.Model):
+class Player(UserMixin, db.Model):
 
-    __tablename__ = 'employees'
+    __tablename__ = 'players'
 
     id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(60), index=True, unique=True)
-    username = db.Column(db.String(60), index=True, unique=True)
-    first_name = db.Column(db.String(60), index=True)
-    last_name = db.Column(db.String(60), index=True)
+    email = db.Column(db.String(60), index=True, unique=True,nullable = False)
+    username = db.Column(db.String(60), index=True, unique=True,nullable = False)
+    first_name = db.Column(db.String(60), index=True,nullable = False)
+    last_name = db.Column(db.String(60), index=True,nullable = False)
     password_hash = db.Column(db.String(128))
-    department_id = db.Column(db.Integer, db.ForeignKey(
-        'departments.id'), nullable=False)
-    role_id = db.Column(db.Integer, db.ForeignKey('roles.id'), nullable=False)
-    is_admin = db.Column(db.Boolean, default=False)
+    position = db.Column(db.String(25),nullable = False)
+    is_admin = db.Column(db.Boolean, default=False,nullable = False)
 
     @property
     def password(self):
@@ -35,38 +33,18 @@ class Employee(UserMixin, db.Model):
     # set up user_loader
     @loginmanager.user_loader
     def user_loader(user_id):
-        return Employee.query.get(int(user_id))
+        return Player.query.get(int(user_id))
 
 
-class Department(db.Model):
-    """
-    Create a Department table
-    """
+class MatchPlayed(db.Model):
 
-    __tablename__ = 'departments'
+    __tablename__ = 'matches'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(60), unique=True)
-    description = db.Column(db.String(200))
-    employees = db.relationship('Employee', backref='department',
-                                lazy='dynamic')
+    opponent = db.Column(db.String(60), nullable = False)
+    goal_scored = db.Column(db.Integer, nullable = False)
+    goal_against = db.Column(db.Integer, nullable = False)
 
     def __repr__(self):
-        return '<Department: {}>'.format(self.name)
+        return '<Opponent: {}>'.format(self.opponent)
 
-
-class Role(db.Model):
-    """
-    Create a Role table
-    """
-
-    __tablename__ = 'roles'
-
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(60), unique=True)
-    description = db.Column(db.String(200))
-    employees = db.relationship('Employee', backref='role',
-                                lazy='dynamic')
-
-    def __repr__(self):
-        return '<Role: {}>'.format(self.name)
