@@ -2,6 +2,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
+from flask_migrate import Migrate
 
 # local imports
 from config import app_config
@@ -18,6 +19,8 @@ def create_app(config_name):
     loginmanager.init_app(app)
     loginmanager.login_message = 'You must be logged in to access this page'
     loginmanager.login_view = 'auth.login'
+    migrate = Migrate(app, db)
+    from . import models
 
     from .admin import admin as admin_blueprint
     app.register_blueprint(admin_blueprint, url_prefix='/admin')
